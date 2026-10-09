@@ -8,12 +8,23 @@ import org.springframework.web.bind.annotation.RestController; // Marks this cla
 import org.springframework.web.bind.annotation.PathVariable; // Reads a value directly from the URL path
 import org.springframework.web.bind.annotation.DeleteMapping; // Lets a method handle HTTP DELETE requests
 import jakarta.validation.Valid; // Enables validation of the incoming request object
-
+import org.springframework.http.ResponseEntity;import org.springframework.http.ResponseEntity;
 import java.util.List; // Imports the List collection type
 
 @RestController // Tells Spring to create this controller and use it for HTTP requests
 @RequestMapping("/orders") // Makes /orders the base URL for this controller
 public class OrderController { // Declares the controller class
+
+    @GetMapping("/best-bid/{symbol}") // Handles GET requests for the best BUY price.
+    public ResponseEntity<Order> getBestBid(@PathVariable String symbol) { // Reads the stock symbol.
+        return ResponseEntity.of(orderService.getBestBid(symbol)); // Returns the order or HTTP 404.
+    } // Ends getBestBid.
+
+    @GetMapping("/best-ask/{symbol}") // Handles GET requests for the best SELL price.
+    public ResponseEntity<Order> getBestAsk(@PathVariable String symbol) { // Reads the stock symbol.
+        return ResponseEntity.of(orderService.getBestAsk(symbol)); // Returns the order or HTTP 404.
+    } // Ends getBestAsk.
+
     @GetMapping("/{id}") // Handles HTTP GET requests such as /orders/2
     public Order getOrderById(@PathVariable Long id) { // Reads the id value from the URL
         return orderService.getOrderById(id); // Delegates the search operation to the service layer

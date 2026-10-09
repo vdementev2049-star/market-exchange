@@ -25,6 +25,12 @@ public class Order {
     private Integer quantity;
     private LocalDateTime createdAt;
 
+    @Enumerated(EnumType.STRING) // Stores the enum as text in PostgreSQL.
+    private OrderStatus status; // Current order status.
+
+    private int remainingQuantity; // Quantity that has not been filled yet.
+
+
     public Order() {
     }
     public Order(String symbol, OrderSide side, BigDecimal price, Integer quantity){
@@ -32,6 +38,10 @@ public class Order {
         this.price=price;
         this.side=side;
         this.quantity=quantity;
+
+        this.status = OrderStatus.OPEN; // Every new order starts as OPEN.
+        this.remainingQuantity = quantity; // Initially, all shares are unfilled.
+
     }
     @PrePersist
     public void setCreatedAt(){
@@ -58,6 +68,15 @@ public class Order {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+
+    public OrderStatus getStatus() { // Returns the current order status.
+        return status; // Returns the status field.
+    }
+
+    public int getRemainingQuantity() { // Returns the unfilled quantity.
+        return remainingQuantity; // Returns the remaining quantity.
+    }
+
     public void setSymbol(String symbol) {
         this.symbol = symbol;
     }

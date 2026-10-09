@@ -2,6 +2,8 @@ package com.vladislavdementev.marketexchange.order; // Places this service insid
 
 import org.springframework.stereotype.Service; // Imports the annotation used to mark business-logic classes
 import java.util.List; // Imports the List collection type
+import java.util.Optional; // Handles a possibly missing order.
+
 
 @Service // Tells Spring to create and manage an instance of this service
 public class OrderService { // Declares the service class
@@ -26,14 +28,31 @@ public class OrderService { // Declares the service class
     public OrderService(OrderRepository orderRepository) { // Spring injects the repository into this service
         this.orderRepository = orderRepository; // Saves the injected repository
     }
-    public Order createOrder(CreateOrderRequest request) { // Defines the business operation for creating a new order
-        Order order = new Order( // Creates a new database entity
-                request.symbol(), // Reads the stock symbol from the API request
-                request.side(), // Reads BUY or SELL from the API request
-                request.price(), // Reads the requested price
-                request.quantity() // Reads the requested share quantity
-        ); // Finishes creating the Order object
 
-        return orderRepository.save(order); // Saves the order in PostgreSQL and returns the saved entity
+    public Order createOrder(CreateOrderRequest request) { // Creates a new order.
+        Order order = new Order( // Creates an Order entity.
+                request.symbol(), // Gets the stock symbol.
+                request.side(), // Gets the order side.
+                request.price(), // Gets the price.
+                request.quantity() // Gets the quantity.
+        ); // Finishes object creation.
+
+        return orderRepository.save(order); // Saves the order.
+    } // Ends createOrder.
+
+    public Optional<Order> getBestBid(String symbol) { // Finds the best BUY order.
+        return orderRepository.findFirstBySymbolAndSideAndStatusInOrderByPriceDescCreatedAtAsc(
+                symbol, // Stock symbol.
+                OrderSide.BUY, // Only BUY orders.
+                List.of(OrderStatus.OPEN, OrderStatus.PARTIALLY_FILLED) // Active statuses.
+        ); // Returns the result.
     }
-}
+
+    public Optional<Order> getBestAsk(String symbol) { // Finds the lowest active SELL order.
+        return orderRepository.findFirstBySymbolAndSideAndStatusInOrderByPriceAscCreatedAtAsc(
+                symbol, // Stock symbol.
+                OrderSide.SELL, // Only SELL orders.
+                List.of(OrderStatus.OPEN, OrderStatus.PARTIALLY_FILLED) // Active statuses.
+        ); // Returns the best matching order, if one exists.
+    } // Ends getBestAsk.
+} // Ends getBestBid.
