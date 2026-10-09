@@ -8,8 +8,9 @@ import org.springframework.web.bind.annotation.RestController; // Marks this cla
 import org.springframework.web.bind.annotation.PathVariable; // Reads a value directly from the URL path
 import org.springframework.web.bind.annotation.DeleteMapping; // Lets a method handle HTTP DELETE requests
 import jakarta.validation.Valid; // Enables validation of the incoming request object
-import org.springframework.http.ResponseEntity;import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity;
 import java.util.List; // Imports the List collection type
+import java.math.BigDecimal; // Represents precise decimal values.
 
 @RestController // Tells Spring to create this controller and use it for HTTP requests
 @RequestMapping("/orders") // Makes /orders the base URL for this controller
@@ -41,15 +42,19 @@ public class OrderController { // Declares the controller class
         this.orderService = orderService; // Saves the injected service
     }
 
+    @GetMapping("/spread/{symbol}") // Handles requests for the bid-ask spread.
+    public ResponseEntity<BigDecimal> getSpread(@PathVariable String symbol) { // Reads the stock symbol.
+        return ResponseEntity.of(orderService.getSpread(symbol)); // Returns the spread or HTTP 404.
+    } // Ends getSpread.
+
     @GetMapping // Handles HTTP GET requests sent to /orders
     public List<Order> getAllOrders() { // Defines the Java method called for this endpoint
         return orderService.getAllOrders(); // Delegates the operation to the service layer
     }
 
-
-    @PostMapping // Handles POST requests sent to /orders
-    public Order createOrder(@Valid @RequestBody CreateOrderRequest request) { // Validates incoming JSON before creating an order
-        return orderService.createOrder(request); // Sends valid order data to the service layer
-    } // Ends the createOrder method
+    @PostMapping // Handles POST /orders.
+    public Order createOrder(@Valid @RequestBody CreateOrderRequest request) { // Reads and validates the incoming order.
+        return orderService.createOrder(request); // Executes the matching logic through the service.
+    } // Ends the method.
 
 }

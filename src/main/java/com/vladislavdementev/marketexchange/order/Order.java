@@ -93,6 +93,40 @@ public class Order {
         this.quantity = quantity;
     }
 
+    public void fill(int executedQuantity) { // Executes part or all of an order.
+
+        if (status == OrderStatus.CANCELLED || status == OrderStatus.FILLED) { // Checks if the order is inactive.
+            throw new IllegalStateException("Order cannot be filled"); // Rejects execution.
+        } // Ends the status check.
+
+        if (executedQuantity <= 0 || executedQuantity > remainingQuantity) { // Validates the execution quantity.
+            throw new IllegalArgumentException("Invalid execution quantity"); // Rejects invalid quantities.
+        } // Ends the quantity check.
+
+        this.remainingQuantity -= executedQuantity; // Reduces the unfilled quantity.
+
+        if (this.remainingQuantity == 0) { // Checks whether the order is fully executed.
+            this.status = OrderStatus.FILLED; // Marks the order as completed.
+        } else { // Handles a partially executed order.
+            this.status = OrderStatus.PARTIALLY_FILLED; // Marks the order as partially filled.
+        } // Ends the status update.
+
+    } // Ends the fill method.
+
+    public void cancel() { // Cancels an active order.
+
+        if (this.status == OrderStatus.FILLED) { // Checks whether the order is fully executed.
+            throw new OrderCancellationException("Filled orders cannot be cancelled"); // Rejects a filled order.
+        }
+
+        if (this.status == OrderStatus.CANCELLED) { // Checks whether the order is already cancelled.
+            throw new OrderCancellationException("Order is already cancelled"); // Rejects repeated cancellation.
+        }
+
+        this.status = OrderStatus.CANCELLED; // Marks the order as cancelled.
+
+    } // Ends cancel.
+
 }
 
 
